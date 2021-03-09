@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      table, tbody, td{
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // label for each box
+        top_left = 'x';
+        top_mid = 'o';
+        top_right = 'x';
+        mid_left = 'o';
+        mid = 'x';
+        mid_right = 'o';
+        bot_left = 'x';
+        bot_mid = 'o';
+        bot_right = 'o';
+        // organizing into an array
+        TicTacToe = 
+          [
+          [top_left, top_mid, top_right], 
+          [mid_left, mid, mid_right], 
+          [bot_left, bot_mid, bot_right]
+          ];
+
+        // Print the start of the table.
+  document.write('<table border = 1>');
+
+// Print each row.
+for (var row=0; row<TicTacToe.length; row++) {
+
+  // Print the start of the row.
+  document.write('<tr>');
+
+  // Print each column.
+  for (var col=0; col<TicTacToe[row].length; col++) {
+    document.write('<td>' + TicTacToe[row][col] + '</col>');
+  }
+
+  // Print the end of the row.
+  document.write('</tr>');
+
+}
+
+// Print the end of the table.
+document.write('</table>');
+
+    </script>
+
+</body>
+</html>
