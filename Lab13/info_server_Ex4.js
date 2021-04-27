@@ -1,30 +1,38 @@
 var express = require('express');
 var app = express();
-var myParser = require("body-parser"); 
-var fs = require('fs'); 
+var myParser = require("body-parser");
+var products = require('./product_data.json');
 
 app.all('*', function (request, response, next) {
-    console.log(request.method + ' to path ' + request.path);
+    console.log(request.method + ' to path ' + request.path 
+    + ' with query' + JSON.stringify(request.query));
     next();
+});
+
+app.get("/product_data.js", function (request, response, next) {
+   var products_str = `var products = ${JSON.stringify(products)};`;
+   response.send(products_str);
 });
 
 app.use(myParser.urlencoded({ extended: true }));
-app.post("/process_form", function (request, response) {
-    let POST = request.body;
-    process_quantity_form(request.body, response);
+
+app.get('/test.html', function (request, response, next) {
+    response.send('I got a request for /test');
 });
 
-
-app.get('/hello.txt', function (request, response, next) {
-    response.send("Got a GET to /test path");
-    next();
+// Processed the form from order_page.html
+app.post('/display_purchase', function (request, response, next) {
+    process_quantity_form(request.body, request, response);
 });
 
 app.use(express.static('./public'));
 
-app.listen(8080, () => console.log(`listening on port 8080`)); // note the use of an anonymous function here
+app.listen(8081, function () {
+    console.log(`listening on port 8080`)
+    }
+); // note the use of an anonymous function here
 
-function isNonNegInt(string_to_check, returnErrors=false) {
+function isNonNegIntString(string_to_check, returnErrors=false) {
     /*
     This funciton returns true if string_to_check is a non-negative integer. If return Errors=true it will return the array of reasons it is not a non-negative integer
     */
@@ -37,14 +45,24 @@ function isNonNegInt(string_to_check, returnErrors=false) {
     return returnErrors ? errors : ((errors.length > 0) ? false : true);
 }
 
-function process_quantity_form (POST, response) {
-    if (typeof POST['quantity_textbox'] != 'undefined') {
-        let q = POST['quantity_textbox'];
-        if (isNonNegInt(q)) {
-            var contents = fs.readFileSync('./views/display_quantity_template.view', 'utf8');
-            response.send(eval('`' + contents + '`')); // render template string
+function process_quantity_form(post_data, request, response) {
+    
+    if (post_data['quantity_textbox']) {
+        the_qty = post_data['quantity_textbox'];
+        let prod_num = post_data['product_select'];
+        let model = products[prod_num]['model'];
+        let model_price = products[prod_num]['price'];
+        if(isNonNegIntString(the_qty)) {
+            // response.send(`Thanks for purchasing ${the_qty} items!`);
+            // response.redirect('invoice.html?quantity_textbox=' + the_qty);
+            response.send(`<h2>Thank you for purchasing ${the_qty} ${model}. Your total is \$${the_qty * model_price}!</h2>`);
+            return;
         } else {
-            response.send(`${q} is not a quantity!`);
+            // response.send(`Hey! ${the_qty} is not a valid quantity!`);
+            response.redirect('./order_page.html?quantity_textbox=' + the_qty);
+            
+            return;
         }
     }
+    response.send(JSON.stringify(post_data));
 }
