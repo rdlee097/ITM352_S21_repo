@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-var myParser = require("body-parser"); 
+var myParser = require("body-parser");
 app.use(myParser.urlencoded({ extended: true }));
 
 app.all('*', function (request, response, next) {
@@ -9,32 +9,35 @@ app.all('*', function (request, response, next) {
     next();
 });
 
-app.get('/text.txt', function (request, response, next) {
-    response.send("I got a request for /test");
-    next();
+app.get('/test.html', function (request, response, next) {
+    response.send('I got a request for /test');
 });
 
-app.post("/display_purchase", function (request, response, next) {
-    user_data = {'username':'itm352', 'password':'grader'};
+app.post('/display_purchase', function (request, response, next) {
+    user_data = {'username':'itm352', 'password':'grader'}
     post_data = request.body;
-    if(post_data['quantity_textbox'] ) {
-       the_qty = post_data['quantity_textbox'];
-        if (isNonNegIntString(the_aty)) {
-            response.send(`Thanks for purchasing ${the_qty} items!`);
+    if (post_data['quantity_textbox']) {
+        the_qty = post_data['quantity_textbox'];
+        if(isNonNegIntString(the_qty)) {
+            // response.send(`Thanks for purchasing ${the_qty} items!`);
+            response.redirect('invoice.html?quantity_textbox=' + the_qty);
+            return;
+        } else {
+            // response.send(`Hey! ${the_qty} is not a valid quantity!`);
+            response.redirect('./order_page.html?quantity_textbox=' + the_qty);
+            
             return;
         }
-        else {
-            response.redirect('./order_page.html?quantity_textbox='+the_qty)
-            return;
-        }
-   }
-   response.send(post_data);
+    }
+    response.send(JSON.stringify(post_data));
 });
-
 
 app.use(express.static('./public'));
 
-app.listen(8080, () => console.log(`listening on port 8080`)); // note the use of an anonymous function here
+app.listen(8081, function () {
+    console.log(`listening on port 8080`)
+    }
+); // note the use of an anonymous function here
 
 function isNonNegIntString(string_to_check, returnErrors=false) {
     /*
