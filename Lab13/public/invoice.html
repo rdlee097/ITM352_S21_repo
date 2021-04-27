@@ -1,4 +1,10 @@
 <script>
-    
-    document.write(`Thanks for purchasing ${the_qty} items!`)
+    let params = (new URL(document.location)).searchParams;
+    if (params.has('quantity_textbox')) {
+            the_qty = params.get('quantity_textbox');
+            document.write(`Thanks for purchasing ${the_qty} items!`);
+        } else {
+            document.write(`No quantities!`);
+        }
+    // document.write(`Thanks for purchasing ${the_qty} items!`);
 </script>
