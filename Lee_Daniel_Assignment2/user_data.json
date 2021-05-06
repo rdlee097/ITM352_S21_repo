@@ -1,1 +1,12 @@
-{"itm352":{"name":"ITM352","password":"grader","email":"itm352@hawaii.edu"},"rdlee":{"name":"Daniel Lee","password":"asdfasdf","email":"rdlee@hawaii.edu"},"asdfasdf":{"name":"rrrrrrrrrra     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","password":"asdfasdf","email":"asdf@asdf.edu"},"aaaasdf":{"name":"adsf asdf","password":"asdfasdf","email":"asdf@asdf.edu"}}
+{
+    "itm352": {
+        "name": "ITM352",
+        "password": "grader",
+        "email": "itm352@hawaii.edu"
+    },
+    "rdlee": {
+        "name": "Daniel Lee",
+        "password": "asdfasdf",
+        "email": "rdlee@hawaii.edu"
+    }
+}
