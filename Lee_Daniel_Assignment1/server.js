@@ -26,6 +26,7 @@ app.use(myParser.urlencoded({ extended: true }));
 
 // Post, used to send to invoice, reference from Stacy Vasquez
 app.post('/process_purchase', function (request, response) {
+    // Grabs body
     let POST = request.body;
     if (typeof POST['submit_purchase'] != 'undefined') {
         var has_valid_quantity = true;
@@ -62,16 +63,12 @@ app.listen(8080, function () {
     }
 ); // note the use of an anonymous function here
 
-// Retrieved from lab 11
-function isNonNegInt(string_to_check, returnErrors=false) {
-    /*
-    This funciton returns true if string_to_check is a non-negative integer. If return Errors=true it will return the array of reasons it is not a non-negative integer
-    */
+// Retrieved from lab 12
+function isNonNegInt(qty, return_errors = false) { //this function checks if values are postitive, integer, whole values 
     errors = []; // assume no errors at first
-    if(Number(string_to_check) != string_to_check) {errors.push('Not a number!');} // Check if string is a number value
-    else {
-        if(string_to_check < 0) errors.push('Negative value!'); // Check if it is non-negative
-        if(parseInt(string_to_check) != string_to_check) errors.push('Not an integer!'); // Check that it is an integer
-    };
-    return returnErrors ? errors : ((errors.length > 0) ? false : true);
+    if (qty == '') qty = 0; //sets input quatity as 0 
+    if (Number(qty) != qty) errors.push(' <b>This is not a number!</b>'); // Check if string is a number value
+    else if (qty < 0) errors.push('<b>Negative value!</b>'); // Check if it is non-negative
+    else if (parseInt(qty) != qty) errors.push('<b>This is not a full value!</b>'); // Check that it is an integer
+    return return_errors ? errors : (errors.length == 0);
 }

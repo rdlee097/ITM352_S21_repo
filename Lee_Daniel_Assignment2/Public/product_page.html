@@ -3,15 +3,19 @@
 <script>
     // Start of functions, checks quantity box
 
-    // Retrieved from lab 12, function to check valid digit
-    function isNonNegInt(qty, return_errors = false) { //this function checks if values are postitive, integer, whole values 
-    errors = []; // assume no errors at first
-    if (qty == '') qty = 0; //sets input quatity as 0 
-    if (Number(qty) != qty) errors.push(' <b>This is not a number!</b>'); // Check if string is a number value
-    else if (qty < 0) errors.push('<b>Negative value!</b>'); // Check if it is non-negative
-    else if (parseInt(qty) != qty) errors.push('<b>This is not a full value!</b>'); // Check that it is an integer
-    return return_errors ? errors : (errors.length == 0);
-}
+    // Retrieved from lab 11, function to check valid digit
+    function isNonNegInt(string_to_check, returnErrors=false) {
+        /*
+        This funciton returns true if string_to_check is a non-negative integer. If return Errors=true it will return the array of reasons it is not a non-negative integer
+        */
+        errors = []; // assume no errors at first
+        if (Number(string_to_check) != string_to_check) {errors.push('Not a number!');} // Check if string is a number value
+        else {
+            if (string_to_check < 0) errors.push('Negative value!'); // Check if it is non-negative
+            if (parseInt(string_to_check) != string_to_check) errors.push('Not an integer!'); // Check that it is an integer
+        };
+        return returnErrors ? errors : ((errors.length > 0) ? false : true);
+    }
 
     // Checks textbox for valid quantity, reference from lab 12
     function checkQuantityTextbox(purchase_qty) {
@@ -53,8 +57,9 @@
                 // Alert if no quantity has been inputted
                     alert("Please enter a quantity");
                 } else { 
-                // No Errors and a quantity has been inputted, sends to invoice
-                    window.location = `./invoice.html${document.location.search}`;
+                // No Errors and a quantity has been inputted
+                    // As2 change, now directs to login page
+                    window.location = "./login.html" + location.search;
                     window.stop;
                 }
             }
@@ -89,9 +94,9 @@
                     <p>\$${products[i]['price']}</p>
                     <img src="${products[i]['image']}">
                     <br>
-                    <label id= "quantity${i}_label"}">Quantity</label>
+                    <label id= "quantity${i}_label">Quantity</label>
                     <input type= "text" placeholder= "0" name= "quantity${i}" 
-                        onkeyup= "checkQuantityTextbox(this);">
+                        onkeyup="checkQuantityTextbox(this);">
                     </section>
                     `);
                 }
