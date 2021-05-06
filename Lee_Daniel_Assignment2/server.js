@@ -15,7 +15,6 @@ var app = express();
 // Loads parser
 var myParser = require("body-parser");
 var user_data_file = 'user_data.json';
-const{request} = require('express');
 
 // Referencing lab 13, to console log server request, to redirect invoice
 app.all('*', function (request, response, next) {
@@ -84,8 +83,8 @@ app.post('/process_login', function (request, response) {
         if (user_data[username_signin]["password"] == password_entered) {
             console.log(rqy);
             rqy["username"] = username_signin;
-            console.log(user_data[rqy["username"]]["username"]);
-            rqy["name"] = user_data[rqy["username"]]["username"];
+            rqy["name"] = user_data[rqy["username"]]["name"];
+            console.log(rqy["name"]);
             // Redirect to invoice if username and password are correct
             response.redirect('/invoice.html?' + qs.stringify(rqy));
             return; 
@@ -125,15 +124,12 @@ app.post('/process_register', function (request, response, next) {
         registration_error.push('Use only letters');
         console.log("must be letters only");
     }
-// Full name character length should be between 0 and 30 
-if ((post.fullname.length > 30 && post.fullname.length <0)) {
-    registration_error.push('Full Name Too Long')
-}
+
     // Username
     // Checks the new username in lowercase across other usernames
     var reguser = post["username"].toLowerCase(); 
     // Gives error if username is taken
-    if (typeof user_data["reguser"] != 'undefined') {
+    if (typeof user_data[reguser] != 'undefined') {
         registration_error.push('Username taken');
     }
     // Requires username to be letters and numbers 
