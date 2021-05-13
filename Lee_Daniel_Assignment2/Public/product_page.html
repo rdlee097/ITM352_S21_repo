@@ -30,7 +30,7 @@
     // Uses quantity from page
     window.onload =  function () {
         // Checks quantity to checkout at invoice
-        let params = (new URL(document.location)).searchParams
+        let params = (new URL(document.location)).searchParams;
         if (params.has('submit_purchase')) {
             // Checks number input
             is_error = false;
