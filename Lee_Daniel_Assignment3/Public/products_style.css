@@ -33,10 +33,10 @@ html {
 }
   
 /* Add a color to the active/current link */
-.topnav .navoption.active {
+/* .topnav .navoption.active {
     background-color: #04AA6D;
     color: white;
-}
+} */
 
 .usersession {
     float: right;
@@ -48,6 +48,16 @@ html {
     font-weight: bold;
     /* width: fit-content;
     height: fit-content; */
+}
+
+.usersection {
+    float: right;
+    /* height: fit-content;
+    width: fit-content; */
+}
+
+.navsection {
+    float:left;
 }
 
 .usersession:hover {

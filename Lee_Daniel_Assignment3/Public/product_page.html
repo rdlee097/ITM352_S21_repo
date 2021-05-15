@@ -1,4 +1,5 @@
 <script src="./product_data.js" type="text/javascript">// Allows product array</script>
+<script src="./page.js" type="text/javascript"></script>
 
 <script>
     // Start of functions, checks quantity box
@@ -64,6 +65,9 @@
                 }
             }
         }
+
+        // Load page object.
+        var page = new Page();
 </script>
 
 
@@ -82,18 +86,26 @@
     <header>
         <h1>Fashion OuterWear</h1>
     </header>
-    <div class="topnav">
-        <a href="/product_page.html" class="active navoption">Home</a>
-        <a href class="navoption">Category 1</a>
-        <a href class="navoption">Category 2</a>
-        <a href class="navoption">Category 3</a>
-        <a href class="usersession">Log Out</a>
-        <a href class="usersession">View Cart (1)</a>
-        <div class="usersession ">Hello Bob Smith!</div>
-        
-        
 
-    </div>
+    <!-- Load navigation bar. -->
+    <script>page.loadNavBar();</script>
+
+    <!-- Source: https://www.w3schools.com/ -->
+    <!-- <div class="topnav">
+        <div class="usersection">
+            <a href id="logout" class="usersession">Log Out</a>
+            <a href id="cart" class="usersession">View Cart (1)</a>
+            <div id="user" class="usersession ">Hello Bob Smith!</div>
+        </div>
+        <div class="navsection">
+            <a href="/product_page.html" id="home" class="active navoption">Home</a>
+            <a href id="category1" class="navoption">Category 1</a>
+            <a href id="category2" class="navoption">Category 2</a>
+            <a href id="category3" class="navoption">Category 3</a>
+        </div>
+        
+    </div> -->
+
     <div>
         <main>
             

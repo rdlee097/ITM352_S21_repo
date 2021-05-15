@@ -16,6 +16,15 @@ var app = express();
 var myParser = require("body-parser");
 var user_data_file = 'user_data.json';
 
+/* Cookie Handler 
+ *
+ * List of cookies used by the system.
+ * - name: The name of the user logged into the system.
+ * - isInteractive: "true" if the user is logged in.
+ */
+var cookieParser = require("cookie-parser");
+app.use(cookieParser())  // Load the cookie parser to the middle ware.
+
 // Referencing lab 13, to console log server request, to redirect invoice
 app.all('*', function (request, response, next) {
     console.log(request.method + ' to path ' + request.path);
@@ -36,6 +45,15 @@ if (fs.existsSync(user_data_file)) {
 } else {
     console.log(`${user_data_file} does not exist!`);
 }
+
+// Get, log the user out and re-direct them back to the main page.
+app.get('/logout', function (request, response) {
+    // Clear the name cookie and set the logged in session to false.
+    response.cookie("isInteractive", "false").send;
+    response.clearCookie("name");
+
+    response.redirect("./product_page.html");
+});
 
 // Post, used to send to invoice, reference from Stacy Vasquez (Fall 2020)
 app.post('/process_purchase', function (request, response) {
@@ -72,37 +90,59 @@ app.post('/process_login', function (request, response) {
     let rqy = request.query;
     let username_entered = post["username"];
     let password_entered = post["password"];
+
     // Starts an array that holds errors, sent to window.onload in login.html
     var login_error = [];
     console.log(rqy);
+
     // Sets usernames inputed into lowercase
     var username_signin = username_entered.toLowerCase();
+
     // Checks to match username input to user_data
     if (typeof user_data[username_signin] != 'undefined') {
+
         // If username matches password
         if (user_data[username_signin]["password"] == password_entered) {
             console.log(rqy);
             rqy["username"] = username_signin;
             rqy["name"] = user_data[rqy["username"]]["name"];
             console.log(rqy["name"]);
+
+            // Set the session to logged in and record the name of the logged in user.
+            response.cookie("isInteractive", "true").send;
+            response.cookie("name", user_data[username_signin]["name"]).send;
+
+            // TODO: Redirect the user back to their original page after login.
+
+            // Redirec the user to the homepage after login.
+            response.redirect('/product_page.html');
+
             // Redirect to invoice if username and password are correct
-            response.redirect('/invoice.html?' + qs.stringify(rqy));
+            // response.redirect('/invoice.html?' + qs.stringify(rqy));
             return; 
+
+        // If password is wrong, display 'Invalid Password' message in console
         } else { 
-            // If password is wrong, display 'Invalid Password' message in console
             login_error.push = ('Invalid Password');
             console.log(login_error);
             rqy["username"] = username_signin;
             rqy["name"] = user_data[username_signin]["name"];
             rqy.login_error = login_error.join(';');
+            response.cookie("isInteractive", "false").send;
+            response.clearCookie("name");
         }   
-    } else { 
-        // If username is wrong, display 'Invalid Username' message in console
+    }
+    
+    // If username is wrong, display 'Invalid Username' message in console
+    else {
         login_error.push = ('Invalid Username');
         console.log(login_error);
         rqy["username"] = username_signin;
         rqy.login_error = login_error.join(';');
+        response.cookie("isInteractive", "false").send;
+        response.clearCookie("name");
     }
+
     // Redirects to login page for any error
     response.redirect('./login.html?' + qs.stringify(rqy));
 });
@@ -156,19 +196,32 @@ app.post('/process_register', function (request, response, next) {
         rqy["username"] = post["username"];
         rqy["email"] = post["email"]; 
             var username = post["username"];
+
             // Register user information
             user_data[username] = {}; 
             user_data[username]["name"] = post["fullname"];
             user_data[username]["password"] = post["password"]; 
             user_data[username]["email"] = post["email"]; 
+
              // Pushes information to user_data.json
             data = JSON.stringify(user_data); 
             fs.writeFileSync(user_data_file, data, "utf-8");
+
+            // Set the session to logged in and record the name of the logged in user.
+            response.cookie("isInteractive", "true").send;
+            response.cookie("name", user_data[username]["name"]).send;
+
             // Redirects to invoice page
             response.redirect('./invoice.html?' + qs.stringify(rqy));
     } else {
+
         // If errors are present, log the user into the console, redirect to registration page
         console.log(registration_error);
+
+        // Clear the name cookie and set the logged in session to false.
+        response.cookie("isInteractive", "false").send;
+        response.clearCookie("name");
+
         // Redirect to registration page if error is present
         rqy.registration_error = registration_error.join(';');
         response.redirect('registration_form.html?' + qs.stringify(rqy));
