@@ -8,6 +8,58 @@ html {
     margin: center;
 }
 
+.topnav {
+    background-color: Silver;
+    overflow: hidden;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+  
+/* Style the links inside the navigation bar */
+.topnav .navoption {
+    float: left;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: bold;
+}
+  
+/* Change the color of links on hover */
+  .topnav .navoption:hover {
+    background-color: darkgray;
+    color: black;
+}
+  
+/* Add a color to the active/current link */
+.topnav .navoption.active {
+    background-color: #04AA6D;
+    color: white;
+}
+
+.usersession {
+    float: right;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: bold;
+    /* width: fit-content;
+    height: fit-content; */
+}
+
+.usersession:hover {
+    background-color: darkgray;
+    color: black;
+}
+
+.usersession.active {
+    background-color: #04AA6D;
+    color: white;
+}
+
 /* Product image */
 
 img {
@@ -49,4 +101,3 @@ input[type="submit"]{
     text-align: center;
     background-color: beige;
 }
-
