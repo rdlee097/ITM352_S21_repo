@@ -1,0 +1,141 @@
+<!-- Cart -->
+<script src="./product_data.js" type="text/javascript">// Allows product array</script>
+<script>
+    
+</script>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart</title>
+</head>
+<body id="top">
+
+    <!-- Header -->
+    <header id="header" class="skel-layers-fixed">
+        <nav id="nav">
+            <ul>
+                <li><a href="./index.html">Home</a ></li>
+                <li><a href="./login.html">Login</a ></li>
+                <li><a href="./register.html">Register</a ></li>
+                <li><div class="dropdown">
+                    <a class="dropbtn" href="./products_display.html">Products</a >
+                    <div class="dropdown-content">
+                        <a href="pen.html">Pen</a><br>
+                        <a href="./notebook.html">Notebook</a> <br>
+                        <a href="./folder.html">Folder</a> <br>
+                        <a href="./accessories.html">Accessories</a>
+                    </div>
+                  </div>
+                </li>
+                <li><a href="./cart.html">Shopping Cart</a ></li>
+            </ul>
+        </nav>
+    </header>
+  <section id="banner">
+    <div class="inner">
+    <script> // thanks the user by nam 
+        var theUser = getCookie('name'); 
+        var theUsername = getCookie('username'); 
+        if (theUsername != '') { //if no name because it is not required uses the username 
+            document.write(`
+                <p align="center">Hello, ${theUsername}! Please review your shopping cart order below</p >
+                <p align="center">Not ${theUsername}? Please log in <a href="login.html" >here</a ></p ><br />
+            `)
+        } else { //if there is no cookie it tells to login 
+            document.write(`
+                <p align="center">You are not logged in: Click <a href="login.html">here</a > to log in</p >
+            `)
+        };
+    </script>
+    </div>
+    </section>
+<br>
+<!--start of invoice table--> 
+    <section id="one" class="wrapper style1">
+        <header>
+            <h1>Fashion OuterWear</h1>
+            <h2>Thank you for your purchase!</h2>
+          </header>
+          <table>
+            <tbody>
+              <!-- invoice4 reference -->
+              <tr>
+                <th style="text-align: center;" width="43%">Item</th>
+                <th style="text-align: center;" width="11%">quantity</th>
+                <th style="text-align: center;" width="13%">price</th>
+                <th style="text-align: center;" width="54%">extended price</th>
+              </tr>
+              <script>
+                // Product quantities for customer purchase
+                subtotal = 0
+                for (i = 0; i < products.length; i++) {
+                   if (quantities[i] > 0) {
+                      // Calculations for subtotal
+                      extended_price = quantities[i] * products[i]['price']
+                      subtotal += extended_price;
+                      // Prints customer order
+                      document.write(`
+                        <tr>
+                          <td width="40%">${products[i]['brand']}</td>
+                          <td align="center" width="10%">${quantities[i]}</td>
+                          <td width="20%">\$${products[i]['price']}</td>
+                          <td width="20%">\$${extended_price}</td>
+                        </tr>
+                      `);
+                    }
+                }
+        
+                // Tax, subtotal, shipping, and total referenced from invoice4
+                // Compute Sales Tax, using Hawaii tax rate
+                var tax_rate = 0.0443;
+                var tax = subtotal * tax_rate;
+        
+                // Compute Shipping
+                if(subtotal <= 50) {
+                  shipping = 2;
+                } else if(subtotal <= 100) {
+                    shipping = 5;
+                } else {
+                  shipping = subtotal * 0.04; // 4% for orders more than 100, shipping cost
+                }
+        
+                // Compute Total
+                var total = subtotal + tax + shipping;
+              </script>
+              <!-- Table  -->
+              <tr>
+                <td style="text-align: center;" colspan="3" width="67%">Sub-total</td>
+                <td width="54%">$<script>document.write(subtotal.toFixed(2));</script></td>
+              </tr>
+              <tr>
+                <td style="text-align: center;" colspan="3" width="67%"><span style="font-weight: bold;">Tax of 4.43%</span></td>
+                <td width="54%">$<script>document.write(tax.toFixed(2))</script></td>
+              </tr>
+              <tr>
+                <td style="text-align: center;" colspan="3" width="67%">Shipping</td>
+                <td width="54%">$<script>document.write(shipping.toFixed(2));</script></td>
+              </tr>
+              <tr>
+                <td style="text-align: center;" colspan="3" width="67%"><strong>Total</strong></td>
+                <td width="54%"><strong>$<script>document.write(total.toFixed(2))</script></strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+          <div style = "font-weight: bold;">
+            <!-- Shipping policy -->
+            OUR SHIPPING POLICY IS:A subtotal $0 - $49.99 will be $2 shipping <br>
+            A subtotal $50 - $99.99 will be $5 shipping <br>
+            Subtotals over $100 will be charged 4% of the subtotal amount
+          </div>
+        </section>
+        <!-- Purchase button that will redirect to invoice or one can continue shopping and it goes back-->
+<section>
+    <div class= end>
+        <input type="submit" value='Continue Shopping' class="button big special" onclick="GoBackWithRefresh()">
+        <input type="submit" value='Purchase' class="button big special" name="purchase_submit_button" onclick="checkCart()">

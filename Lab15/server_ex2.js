@@ -16,14 +16,29 @@ app.use(myParser.urlencoded({ extended: true }));
 var fs = require('fs');
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
+var session = require('express-session');
 
+app.use(session({secret: "ITM352 rocks!"}));
+
+// play with sessions
+app.get('/set_session', function (request, response, next) {
+    response.send(`welcome, your session ID is ${request.session.id}`)
+    next();
+});
+
+app.get('/use_session', function (request, response, next) {
+    response.send(`your session ID is ${request.session.id}`)
+    request.session.destroy();
+    next();
+});
 
 // play with cookies
 app.get('/set_cookie', function (request, response, next) {
     // console.log(request.cookies);
     let my_name = 'Daniel Lee';
     // response.clearCookie('my_name');
-    response.cookie('my_name', my_name, {maxAge: 5000});
+    now = new Date();
+    response.cookie('my_name', my_name, {expire: 5000 + now.getTime()});
     response.send(`Cookie for ${my_name} sent`);
     next();
 });
@@ -96,6 +111,17 @@ app.all('*', function (request, response, next) {
 
 // Process login form
 app.post('/process_login', function (request, response, next) {
+    if (typeof request.cookies['username'] != 'undefined') {
+        logged_in = (`${request.cookies['username']} is already logged in`);
+        return;
+    }
+    if (typeof request.session['last_login'] != 'undefined') {
+        last_log = 'Last login time was ' + request.session['last_login'];
+    } else {
+        lat_log = "first time login";
+    }
+    request.session['last_login'] = Date();
+    
     console.log(request.query);
     // Check login and password match database
 
@@ -104,6 +130,7 @@ app.post('/process_login', function (request, response, next) {
     let password_entered = request.body["psw"];
     if (typeof user_data[username_entered] != 'undefined') {
         if (user_data[username_entered]['password'] == password_entered) {  
+            response.cookie('username', username_entered);
             response.send(`${username_entered} is logged in.`);
     } else {
         response.send(`${username_entered} password is wrong.`);

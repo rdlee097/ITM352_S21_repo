@@ -1,9 +1,9 @@
-// Daniel Lee Assignment 2
+// Daniel Lee Assignment 3
 // Reference from Lab 13-Ex4, and same screencast, Lab 14
 // Uses npm express, query-string, filesystem, and nodemon to run server
 
 // Uses data from product_data.js
-var data = require('./public/product_data.js');
+var data = require('./Public/product_data.js');
 var products = data.products;
 // Loads querystring
 const qs = require('qs');
@@ -15,6 +15,18 @@ var app = express();
 // Loads parser
 var myParser = require("body-parser");
 var user_data_file = 'user_data.json';
+// Uses data in body
+app.use(myParser.urlencoded({ extended: true })); 
+// From lab 15
+// Assigns cookieParser 
+var cookieParser = require('cookie-parser'); 
+app.use(cookieParser());
+// Assigns session 
+var session = require('express-session'); 
+// Assigns mailer
+// const nodemailer = require("nodemailer"); 
+app.use(session({ secret: "ITM352 rocks!" }));
+// From lab 15
 
 // Referencing lab 13, to console log server request, to redirect invoice
 app.all('*', function (request, response, next) {
@@ -22,8 +34,7 @@ app.all('*', function (request, response, next) {
     next();
 });
 
-// Uses data in body
-app.use(myParser.urlencoded({ extended: true })); 
+
 
 // Read user data file, taken from lab 14 screencast
 if (fs.existsSync(user_data_file)) {
@@ -174,6 +185,54 @@ app.post('/process_register', function (request, response, next) {
         response.redirect('registration_form.html?' + qs.stringify(rqy));
     }
 });
+
+// Get cart information
+app.post('/get_cart', function (request, response) {
+    if (typeof request.session.cart == "undefined") {// If cart data is not requested, create an object for it
+        request.session.cart = {};
+    }
+    // Responds to cart
+    response.json(request.session.cart);
+});
+
+// Process Cart
+app.post('/add_cart', function (request, response) {
+    console.log(request.session);
+    let post = request.body;
+
+    // Check if the quantities are NonNegInt (from previous Assignment 1)
+    // Professor Port helped me create a product_key to post and save that session's quantities to the Shopping Cart
+    if (typeof post['submitCart'] != 'undefined') {
+        product_key = POST["product_key"]; // POSTs the product_key
+        products = allProducts[product_key];
+        var hasvalidquantities = true; // Assumes that the variable is true (has valid quantities)
+        // var hasquantities = false
+        let quantities = [];
+        for (i = 0; i < products.length; i++) {
+            qty = POST[`quantity${i}`];
+            quantities[i] = qty;
+            // hasquantities = hasquantities || qty > 0; // If value is > 0, then it is valid
+            hasvalidquantities = hasvalidquantities && isNonNegInt(qty); // If quantity is both > 0 and valid
+        }
+    // NOTE: Following code will retain query string from products_display.html page 
+    // Borrowed from Prof. Port's screencast "Getting Started With Assignment 2"
+    if (hasvalidquantities) { // If valid, add the quantities to the cart/ session
+        if (typeof request.session.cart == "undefined") {
+            request.session.cart = {};
+        }
+            request.session.cart[product_key] = quantities; // Posts the user's session
+            POST["message"] = "Successfully added to cart!";
+        } else {
+            POST["message"] = "Invalid quantities, cart not updated!";
+        }
+        const stringified = qs.stringify(POST);
+        console.log(request.session);
+        response.redirect(`./products.html?${stringified}`);
+    }
+});
+
+
+
 
 // Using express to access "Public" folder files
 app.use(express.static('./Public'));

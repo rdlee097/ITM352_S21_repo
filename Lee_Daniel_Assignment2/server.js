@@ -3,7 +3,7 @@
 // Uses npm express, query-string, filesystem, and nodemon to run server
 
 // Uses data from product_data.js
-var data = require('./public/product_data.js');
+var data = require('./Public/product_data.js');
 var products = data.products;
 // Loads querystring
 const qs = require('qs');
