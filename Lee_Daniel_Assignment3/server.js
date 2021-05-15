@@ -5,27 +5,39 @@
 // Uses data from product_data.js
 var data = require('./public/product_data.js');
 var products = data.products;
+
 // Loads querystring
 const qs = require('qs');
+
 // Loads filesystem
 var fs = require('fs');
+
 // Allowing express, server starts
 var express = require('express');
 var app = express();
+
 // Loads parser
 var myParser = require("body-parser");
 var user_data_file = 'user_data.json';
 
-/* Cookie Handler 
+/* Cookie Middleware 
  *
  * List of cookies used by the system.
- * - name: The name of the user logged into the system.
- * - isInteractive: "true" if the user is logged in.
+ * - 
  */
 var cookieParser = require("cookie-parser");
 app.use(cookieParser())  // Load the cookie parser to the middle ware.
 
-// Referencing lab 13, to console log server request, to redirect invoice
+/* Session Middleware
+ * Source: https://medium.com/weekly-webtips/how-to-create-a-simple-login-functionality-in-express-5274c44c20df
+ */
+var session = require("express-session")
+app.use(session({secret: "ITM352 rocks!",  // Secret taken from lab 15.
+    name:'uniqueSessionID',
+    saveUninitialized:false
+}));
+
+/* Logs All Routes to the Server */
 app.all('*', function (request, response, next) {
     console.log(request.method + ' to path ' + request.path);
     next();
@@ -36,9 +48,11 @@ app.use(myParser.urlencoded({ extended: true }));
 
 // Read user data file, taken from lab 14 screencast
 if (fs.existsSync(user_data_file)) {
+
     // Uses filesystem's to load user_data.json
     var file_stats = fs.statSync(user_data_file);
     console.log(`${user_data_file} has ${file_stats["size"]} characters`); 
+
     // Lets server read user_data.json and convert data to string
     data = fs.readFileSync(user_data_file, 'utf-8');
     var user_data = JSON.parse(data);  
@@ -46,12 +60,24 @@ if (fs.existsSync(user_data_file)) {
     console.log(`${user_data_file} does not exist!`);
 }
 
-// Get, log the user out and re-direct them back to the main page.
-app.get('/logout', function (request, response) {
-    // Clear the name cookie and set the logged in session to false.
-    response.cookie("isInteractive", "false").send;
-    response.clearCookie("name");
+/* API to check if the user currently has an active session */
+app.get("/loggedin", function (request, response) {
+    if (request.session.loggedIn) {
+        response.send(JSON.stringify({"name": request.session.name}));
+    } else {
+        response.send("");
+    }
 
+});
+
+/* API to end the user's active session */
+app.get('/logout', function (request, response) {
+
+    // Destroy the user session.
+    // Source: https://medium.com/weekly-webtips/how-to-create-a-simple-login-functionality-in-express-5274c44c20df
+    request.session.destroy((err)=>{})
+
+    // Re-direct the user to the main product page.
     response.redirect("./product_page.html");
 });
 
@@ -62,21 +88,28 @@ app.post('/process_purchase', function (request, response) {
         var has_valid_quantity = true;
         var has_quantity = false;
         for (i = 0; i < products.length; i++) {
+
             // Checks quantity amount
             qty = POST[`quantity${i}`];
+
             // Greater than 0
             has_quantity = has_quantity || qty > 0;
+
             // Greater than 0, and valid using Int check function
             has_valid_quantity = has_valid_quantity && isNonNegInt(qty);
         }
+
         // Makes data into strings
         const stringified = qs.stringify(POST);
+
         // If valid
         if (has_valid_quantity && has_quantity) {
+
             // Sends to invoice
             response.redirect("./login.html?" + stringified);
             return;
         } else {
+
             // If not valid, sends back
             response.redirect("./product_page.html?" + stringified);
             
@@ -85,67 +118,64 @@ app.post('/process_purchase', function (request, response) {
 });
 
 // Process login form, reference from lab 14 and assignment 2 screencasts, also Stacy Vasquez (Fall 2020) for var cleanup
-app.post('/process_login', function (request, response) {
-    let post = request.body;
-    let rqy = request.query;
-    let username_entered = post["username"];
-    let password_entered = post["password"];
+app.post('/process_login',
+    function (request, response) {
+        let post = request.body;
+        let rqy = request.query;
+        let username_entered = post["username"];
+        let password_entered = post["password"];
 
-    // Starts an array that holds errors, sent to window.onload in login.html
-    var login_error = [];
-    console.log(rqy);
+        // Starts an array that holds errors, sent to window.onload in login.html
+        var login_error = [];
+        console.log(rqy);
 
-    // Sets usernames inputed into lowercase
-    var username_signin = username_entered.toLowerCase();
+        // Sets usernames inputed into lowercase
+        var username_signin = username_entered.toLowerCase();
 
-    // Checks to match username input to user_data
-    if (typeof user_data[username_signin] != 'undefined') {
+        // Checks to match username input to user_data
+        if (typeof user_data[username_signin] != 'undefined') {
 
-        // If username matches password
-        if (user_data[username_signin]["password"] == password_entered) {
-            console.log(rqy);
-            rqy["username"] = username_signin;
-            rqy["name"] = user_data[rqy["username"]]["name"];
-            console.log(rqy["name"]);
+            // If username matches password
+            if (user_data[username_signin]["password"] == password_entered) {
+                console.log(rqy);
+                rqy["username"] = username_signin;
+                rqy["name"] = user_data[rqy["username"]]["name"];
+                console.log(rqy["name"]);
 
-            // Set the session to logged in and record the name of the logged in user.
-            response.cookie("isInteractive", "true").send;
-            response.cookie("name", user_data[username_signin]["name"]).send;
+                // 
+                request.session.loggedIn = true;
+                request.session.username = username_signin;
+                request.session.name = rqy["name"];
 
-            // TODO: Redirect the user back to their original page after login.
+                // Redirect the user to the homepage after login.
+                response.redirect('/product_page.html');
 
-            // Redirec the user to the homepage after login.
-            response.redirect('/product_page.html');
+                // Redirect to invoice if username and password are correct
+                // response.redirect('/invoice.html?' + qs.stringify(rqy));
+                return; 
 
-            // Redirect to invoice if username and password are correct
-            // response.redirect('/invoice.html?' + qs.stringify(rqy));
-            return; 
-
-        // If password is wrong, display 'Invalid Password' message in console
-        } else { 
-            login_error.push = ('Invalid Password');
+            // If password is wrong, display 'Invalid Password' message in console
+            } else { 
+                login_error.push = ('Invalid Password');
+                console.log(login_error);
+                rqy["username"] = username_signin;
+                rqy["name"] = user_data[username_signin]["name"];
+                rqy.login_error = login_error.join(';');
+            }   
+        }
+        
+        // If username is wrong, display 'Invalid Username' message in console
+        else {
+            login_error.push = ('Invalid Username');
             console.log(login_error);
             rqy["username"] = username_signin;
-            rqy["name"] = user_data[username_signin]["name"];
             rqy.login_error = login_error.join(';');
-            response.cookie("isInteractive", "false").send;
-            response.clearCookie("name");
-        }   
-    }
-    
-    // If username is wrong, display 'Invalid Username' message in console
-    else {
-        login_error.push = ('Invalid Username');
-        console.log(login_error);
-        rqy["username"] = username_signin;
-        rqy.login_error = login_error.join(';');
-        response.cookie("isInteractive", "false").send;
-        response.clearCookie("name");
-    }
+        }
 
-    // Redirects to login page for any error
-    response.redirect('./login.html?' + qs.stringify(rqy));
-});
+        // Redirects to login page for any error
+        response.redirect('./login.html?' + qs.stringify(rqy));
+    }
+);
 
 // Process registration form, referenced from lab 14 screencast and Nick Sams
 app.post('/process_register', function (request, response, next) {
@@ -207,20 +237,12 @@ app.post('/process_register', function (request, response, next) {
             data = JSON.stringify(user_data); 
             fs.writeFileSync(user_data_file, data, "utf-8");
 
-            // Set the session to logged in and record the name of the logged in user.
-            response.cookie("isInteractive", "true").send;
-            response.cookie("name", user_data[username]["name"]).send;
-
             // Redirects to invoice page
             response.redirect('./invoice.html?' + qs.stringify(rqy));
     } else {
 
         // If errors are present, log the user into the console, redirect to registration page
         console.log(registration_error);
-
-        // Clear the name cookie and set the logged in session to false.
-        response.cookie("isInteractive", "false").send;
-        response.clearCookie("name");
 
         // Redirect to registration page if error is present
         rqy.registration_error = registration_error.join(';');
