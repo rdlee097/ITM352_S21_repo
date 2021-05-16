@@ -4,7 +4,7 @@ var levi =
         "name": "Jacket",
         "brand": "Levi", 
         "price": 230.00, 
-        "image": "./product_image/Levi.jpg"
+        "image": "./product_image/Levi.webp"
     },
     {
         "name": "Pants",
