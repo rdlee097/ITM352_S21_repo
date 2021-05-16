@@ -27,7 +27,7 @@ class Page {
         // If the user is logged in, then show their cart, name, and logout button.
         if (this.loggedIn) {
             document.write('<a href="/logout" class="usersession">Log Out</a>');
-            document.write('<a href class="usersession">View Cart (1)</a>');
+            document.write('<a href="/cartv2.html" class="usersession">View Cart</a>');
             document.write('<div class="usersession ">Hello ' + this.user["name"] + '!</div>');
         }
 
@@ -39,10 +39,11 @@ class Page {
         document.write(`
                 </div> 
                 <div class="navsection">
-                    <a href="/product_page.html" class="active navoption">Home</a>
-                    <a href class="navoption">Category 1</a>
-                    <a href class="navoption">Category 2</a>
-                    <a href class="navoption">Category 3</a>
+                    <a href="/" class="navoption">Home</a>
+                    <a href="/product_page.html" class="navoption">Patagonia</a>
+                    <a href="/product_page_hb.html" class="navoption">Huckberry</a>
+                    <a href="/product_page_levi.html" class="navoption">Levi</a>
+                    <a href="/product_page_nf.html" class="navoption">North Face</a>
                 </div>
             </div>
         `);
@@ -51,7 +52,7 @@ class Page {
     loadCookies() {
 
         // Cookies are separated by a semi-colon and a whitespace.
-        // I.E: "isInteractive=true; name=Daniel Lee"
+        // I.E: "isInteractive=true; name=Daniel%Lee"
         let cookies = document.cookie.split('; ');
 
         // Store each cookie to our page object.
@@ -70,7 +71,19 @@ class Page {
             }
             
             // If this is a cookie with just a key, then store it without a value.
-            this.cookies[cookie[0]]
+            this.cookies[cookie[0]] = null;
         }
+    }
+
+    deleteCookie(name) {
+
+        // This cookie was not loaded by the page.
+        if (this.cookies[name] === undefined) {
+            return false
+        }
+
+        // Cookie was loaded and can be removed.
+        // delete this.cookies[name];
+        document.cookie = name + "=" + this.cookies[name] + "; Expires=Thu, 01 Jan 1970 00:00:01 GMT;"
     }
 }

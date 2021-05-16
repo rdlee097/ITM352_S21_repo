@@ -1,5 +1,5 @@
 <!-- <script src="./product_data.js" type="text/javascript">// Allows product array</script> -->
-<script src="./patagonia.js" type="text/javascript"></script>
+<script src="./huckberry.js" type="text/javascript"></script>
 <script src="./page.js" type="text/javascript"></script>
 
 <script>
@@ -95,23 +95,23 @@
         <main>
 
             <section class="item">
-                <h2 style="font-size: xx-large;">Patagonia</h2>
+                <h2 style="font-size: xx-large;">Huckberry</h2>
             </section>
 
             <script>
                 // Start of products display, loops through products.json and provides a quantity input box
-                for (i = 0; i < patagonia.length; i++) {
+                for (i = 0; i < huckberry.length; i++) {
                     document.write(`
                         <form name= "product_form" action= "/add_to_cart" method= "POST">
                             <section class="item">
-                            <h2>${patagonia[i]['brand']} ${patagonia[i]['name']}</h2>
-                            <p>\$${patagonia[i]['price']}</p>
-                            <img src="${patagonia[i]['image']}">
+                            <h2>${huckberry[i]['brand']} ${huckberry[i]['name']}</h2>
+                            <p>\$${huckberry[i]['price']}</p>
+                            <img src="${huckberry[i]['image']}">
                             <br>
-                            <input type="hidden" name="brand" value="${patagonia[i]['brand']}">
-                            <input type="hidden" name="name" value="${patagonia[i]['name']}">
-                            <input type="hidden" name="price" value="${patagonia[i]['price']}">
-                            <input type="hidden" name="image" value="${patagonia[i]['image']}">
+                            <input type="hidden" name="brand" value="${huckberry[i]['brand']}">
+                            <input type="hidden" name="name" value="${huckberry[i]['name']}">
+                            <input type="hidden" name="price" value="${huckberry[i]['price']}">
+                            <input type="hidden" name="image" value="${huckberry[i]['image']}">
                     `);
                     
                     // Check if the user is logged in before displaying the quantity and add to cart features.

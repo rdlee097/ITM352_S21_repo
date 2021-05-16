@@ -26,7 +26,7 @@
     /* Style for background */
     body {
         font-family: Arial, Helvetica, sans-serif;
-        background-image: url(/product_image/Background2.jpg);   
+        background-image: url(/product_image/Background2.jpg);
     }
 
     h1, h2 {
@@ -123,6 +123,12 @@
         background-color: #04AA6D;
         color: white;
     }
+
+    input[type="submit"]{
+        text-align: center;
+        background-color: beige;
+        align-items: center;
+    }
 </style>
 
 <!DOCTYPE html>
@@ -139,13 +145,8 @@
   </header>
 
   <!-- Load navigation bar. -->
-  <script>
-    page.loadNavBar();
-    document.write(`
-      <h2>${page.user["name"]}, thank you for your purchase!</h2>
-    `)
-  </script>
-  
+  <script>page.loadNavBar();</script>
+  <h2>Shopping Cart</h2>
 
   <table>
     <tbody>
@@ -191,8 +192,6 @@
         // Compute Total
         var total = subtotal + tax + shipping;
 
-        // Clear the cart after completing the purchase.
-        page.deleteCookie("cartStr");
       </script>
       <!-- Table  -->
       <tr>
@@ -220,15 +219,22 @@
     A subtotal $50 - $99.99 will be $5 shipping <br>
     Subtotals over $100 will be charged 4% of the subtotal amount
   </div>
-  <!-- <div>
+  <div>
     <ul>
-      <h2>Return to pages</h2>
-      <a href="./index.html">Home</a>
+      <!-- <h2>Return to pages</h2> -->
+      <form name= "product_form" action= "/process_purchase" method= "POST">
+        <script>
+          if (page.loggedIn) {
+              document.write('<input type= "submit" value= "Submit Purchase Here" name= "submit_purchase">')
+          }
+        </script>
+      </form>
+      <!-- <a href="./index.html">Home</a>
       <br>
       <a class='products' href="./product_page.html">Products</a>
       <br>
-      <a class='active' href="./invoice.html">Cart</a>
+      <a class='active' href="./invoice.html">Cart</a> -->
     </ul>
-  </div> -->
+  </div>
 </body>
 </html>

@@ -1,10 +1,10 @@
-// Daniel Lee Assignment 2
-// Reference from Lab 13-Ex4, and same screencast, Lab 14
-// Uses npm express, query-string, filesystem, and nodemon to run server
+// Daniel Lee Assignment 3
+// Reference from Lab 13-Ex4, and same screencast, Lab 14 and 15
+// Uses npm express, query-string, filesystem, cookie-parser, and nodemon to run server
 
 // Uses data from product_data.js
-var data = require('./public/product_data.js');
-var products = data.products;
+// var data = require('./Public/product_data.js');
+// var products = data.products;
 
 // Loads querystring
 const qs = require('qs');
@@ -36,6 +36,107 @@ app.use(session({secret: "ITM352 rocks!",  // Secret taken from lab 15.
     name:'uniqueSessionID',
     saveUninitialized:false
 }));
+
+// TODO: Figure out how to import JS files.
+class Cart {
+
+    /* cartStr = {
+     *     "total": <total>,
+     *     "items": {
+     *         <productId>: {
+     *             "brand": <brand>,
+     *             "name": <name>,
+     *             "price": <price>,
+     *             "image": <image>,
+     *             "quantity": <quantity>,
+     *            "subtotal": <subtotal>
+     *         }
+     *     }   
+     * }
+     */
+    constructor(cartStr="") {
+
+        /* items = {
+         *     <productId>: {
+         *         "brand": <brand>,
+         *         "name": <name>,
+         *         "price": <price>,
+         *         "image": <image>,
+         *         "quantity": <quantity>,
+         *         "subtotal": <subtotal>
+         *     }
+         * }
+         */
+        this.items = {}
+        this.total = 0.00;
+
+        // Load an existing cart if provided.
+        if (cartStr !== "") {
+
+            // Decode the cart string.
+            cartStr = decodeURIComponent(cartStr);
+
+            // DEBUG: Print statement to study the contents of the cart string.
+            console.log("Class Cart: Constructor: cartStr: " + cartStr);
+
+            // Convert the string to a JSON object to assign the values to this cart.
+            let cart = JSON.parse(cartStr);
+            this.total = cart["total"]
+            this.items = cart["items"]
+        }
+    }
+
+    addItem(productId, brand, name, price, image, quantity) {
+
+        let subtotal = price * quantity;
+
+        // Add the item directly to the cart if it is missing.
+        if (this.items[productId] == undefined) {
+            this.items[productId] = {
+                "brand": brand,
+                "name": name,
+                "price": price,
+                "image": image,
+                "quantity": quantity,
+                "subtotal": subtotal
+            };
+            this.total += subtotal;
+        }
+
+        // Update the quantity of the item in the cart.
+        else {
+            this.items[productId]["quantity"] += quantity;
+            this.items[productId]["subtotal"] += subtotal;
+            this.total += subtotal;
+        }
+    }
+
+    removeItem(productId) {
+
+        // Nothing to do since the item doesn't exist in the cart.
+        if (this.items[productId] == undefined) {
+            return
+        }
+
+        // Reduce the total based on the subtotal of the removed item.
+        this.total -= this.items[productId]['subtotal'];
+
+        // Remove this item from the cart.
+        this.items.delete(productId);
+    }
+
+    export() {
+        
+        // Conver this object into a string for storage and transportation.
+        let cartStr = JSON.stringify({"total": this.total, "items": this.items});
+
+        // DEBUG: Print statement to study the contents of the cart upon export.
+        console.log("Class Cart: export: cartStr: " + cartStr);
+
+        // Encode the cart string for cookie storage.
+        return encodeURIComponent(cartStr);
+    }
+}
 
 /* Logs All Routes to the Server */
 app.all('*', function (request, response, next) {
@@ -81,40 +182,100 @@ app.get('/logout', function (request, response) {
     response.redirect("./product_page.html");
 });
 
+// Add to cart API.
+// We will be using cookies to store and display the cart on the website.
+// We will be re-using components from the "process_purchase" API call from previous labs/homework.
+app.post("/add_to_cart", function(request, response) {
+
+    // DEBUG: Debugging print statement to study the contents of the POST call.
+    console.log("Add to Cart API: Request Body: " + JSON.stringify(request.body));
+
+    // DEBUG: Print statement to study the contents of the cookies.
+    // Cookies are stored in a dictionary.
+    console.log("Add to Cart API: Cookies: " + JSON.stringify(request.cookies));
+
+    let brand = request.body["brand"] || '';
+    let name = request.body["name"] || '';
+    let price = request.body["price"] || '';
+    let image = request.body["image"] || '';
+    let quantity = request.body["quantity"] || '';
+
+    // Covert to types.
+    price = parseFloat(price);
+    quantity = parseInt(quantity);
+
+    // TODO: If any of the required pieces of information is missing, then we can't process the request of the cart.
+
+    // If the user does not already have a cart, then we will create a brand new cart object.
+    let cartStr = request.cookies["cartStr"];
+
+    // Decode the cart string.
+    // cartStr = decodeURIComponent(cartStr);
+
+    if (cartStr === undefined || cartStr === "") {
+        var cart = new Cart();
+    }
+
+    // Check if the user already has an existing cart.
+    // If an existing cart is discovered, then parse it and create it as an existing cart object.
+    else {
+        var cart = new Cart(cartStr);
+    }
+
+    // Add the requested item to the cart.
+    cart.addItem(brand+name, brand, name, price, image, quantity)
+
+    // Export the new cart to a string to be stored in a cookie.
+    response.cookie("cartStr", cart.export());
+
+    // Redirect the user back to the last page that they were on.
+    // https://stackoverflow.com/questions/12442716/res-redirectback-with-parameters
+    var backUrl = request.header("Referer") || "/";
+    response.redirect(backUrl);
+});
+
 // Post, used to send to invoice, reference from Stacy Vasquez (Fall 2020)
 app.post('/process_purchase', function (request, response) {
-    let POST = request.body;
-    if (typeof POST['submit_purchase'] != 'undefined') {
-        var has_valid_quantity = true;
-        var has_quantity = false;
-        for (i = 0; i < products.length; i++) {
 
-            // Checks quantity amount
-            qty = POST[`quantity${i}`];
+    // Check if the user is logged in. If they are not, then send them to the login page.
+    if (!request.session.loggedIn) {
+        response.redirect("./login.html");
+    }
 
-            // Greater than 0
-            has_quantity = has_quantity || qty > 0;
+    response.redirect("./invoice.html");
 
-            // Greater than 0, and valid using Int check function
-            has_valid_quantity = has_valid_quantity && isNonNegInt(qty);
-        }
+//     let POST = request.body;
+//     if (typeof POST['submit_purchase'] != 'undefined') {
+//         var has_valid_quantity = true;
+//         var has_quantity = false;
+//         for (i = 0; i < products.length; i++) {
 
-        // Makes data into strings
-        const stringified = qs.stringify(POST);
+//             // Checks quantity amount
+//             qty = POST[`quantity${i}`];
 
-        // If valid
-        if (has_valid_quantity && has_quantity) {
+//             // Greater than 0
+//             has_quantity = has_quantity || qty > 0;
 
-            // Sends to invoice
-            response.redirect("./login.html?" + stringified);
-            return;
-        } else {
+//             // Greater than 0, and valid using Int check function
+//             has_valid_quantity = has_valid_quantity && isNonNegInt(qty);
+//         }
 
-            // If not valid, sends back
-            response.redirect("./product_page.html?" + stringified);
+//         // Makes data into strings
+//         const stringified = qs.stringify(POST);
+
+//         // If valid
+//         if (has_valid_quantity && has_quantity) {
+
+//             // Sends to invoice
+//             // response.redirect("./login.html?" + stringified);
+//             return;
+//         } else {
+
+//             // If not valid, sends back
+//             response.redirect("./product_page.html?" + stringified);
             
-        }
-   }
+//         }
+//    }
 });
 
 // Process login form, reference from lab 14 and assignment 2 screencasts, also Stacy Vasquez (Fall 2020) for var cleanup
@@ -146,6 +307,14 @@ app.post('/process_login',
                 request.session.loggedIn = true;
                 request.session.username = username_signin;
                 request.session.name = rqy["name"];
+
+                // Clear cart after login.
+                response.clearCookie('cartStr');
+
+                // Redirect the user back to the last page that they were on.
+                // https://stackoverflow.com/questions/12442716/res-redirectback-with-parameters
+                // var backUrl = request.header("Referer") || "/";
+                // response.redirect(backUrl);
 
                 // Redirect the user to the homepage after login.
                 response.redirect('/product_page.html');
