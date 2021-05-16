@@ -1,5 +1,6 @@
 // Daniel Lee Assignment 3
 // Reference from Lab 13-Ex4, and same screencast, Lab 14 and 15
+// Received help from both Dan Port in lecture and Alvin Almira from previous semester
 // Uses npm express, query-string, filesystem, cookie-parser, and nodemon to run server
 
 // Uses data from product_data.js
