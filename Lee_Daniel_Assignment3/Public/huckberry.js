@@ -4,7 +4,7 @@ var huckberry =
         "name": "Jacket",
         "brand": "Huckberry", 
         "price": 200.00, 
-        "image": "./product_image/Huckberry.jpg"
+        "image": "./product_image/Huckberry.webp"
     },
     {
         "name": "Pants",
