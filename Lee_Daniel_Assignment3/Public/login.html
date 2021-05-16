@@ -1,0 +1,53 @@
+<!-- Login page form is referenced from w3schools -->
+<script>
+  // From lab 14
+  let params = (new URL(document.location)).searchParams;
+  window.onload =  function () {
+  
+    if (params.has('login_error')) {
+    alert('Invalid username or password');
+    }
+  }
+
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <!-- Links stylesheet for page -->
+    <link href= "login.css" rel= "stylesheet">
+</head>
+<body>
+  <script>
+    // Reference from lab 14
+    // document.write(`<form action="process_login${location.search}" method="post">`);
+</script>
+    <form name="login" action="process_login" method="post">
+        <!--  -->
+        <div class="imgcontainer">
+          <img src="./product_image/avatar.webp" alt="Avatar" class="avatar">
+        </div>
+      
+        <div class="login">
+          <label for="username"><b>Username</b></label>
+          <input type="text" placeholder="Enter Username" name="username" required>
+      
+          <label for="password"><b>Password</b></label>
+          <input type="password" placeholder="Enter Password" name="password" required>
+      
+          <button name="login" type="submit" value="login">Login</button>
+        </div>
+        <script>
+            document.write(`<p>Don't have an account? <a href="./registration_form.html${location.search}">Sign up here</a>.</p>`);
+        </script>
+      </form>
+      <script>
+        // Saves query string from product_page to direct invoice, from lab 14
+        login.action += document.location.search;
+      </script>
+</body>
+</html>
